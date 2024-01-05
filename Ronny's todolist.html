@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ronny's Todo List</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif, sans-serif;
+            text-align: left;
+            margin: 25px;
+            background-color: #333;
+            color: white;
+        }
+
+        #taskInput,
+        #startDate,
+        #dueDate {
+            width: 60%;
+            padding: 10px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        #taskList,
+        #deletedTaskList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .taskItem {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #555;
+            margin-bottom: 5px;
+            background-color: #444;
+        }
+
+        .taskItem button {
+            cursor: pointer;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+        }
+
+        .taskItem button.complete {
+            background-color: transparent;
+            color: green;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        #addTaskButton,
+        #restoreTasksButton,
+        #deletePermanentlyButton {
+            background-color: blue;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        #deletedTaskSection {
+            margin-top: 20px;
+        }
+
+        .deletedTaskItem {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #555;
+            margin-bottom: 5px;
+            background-color: #555;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Ronny's Todo List</h1>
+
+    <input type="text" id="taskInput" placeholder="Add a new task">
+    <input type="date" id="startDate" placeholder="Start Date">
+    <input type="date" id="dueDate" placeholder="Due Date">
+    <button id="addTaskButton" onclick="addTask()">Add Task</button>
+
+    <ul id="taskList"></ul>
+
+    <h2 id="deletedTaskSection">Deleted Tasks</h2>
+    <ul id="deletedTaskList"></ul>
+    <button id="restoreTasksButton" onclick="restoreDeletedTasks()">Restore Deleted Tasks</button>
+    <button id="deletePermanentlyButton" onclick="deletePermanently()">Delete Permanently</button>
+
+    <script>
+        function addTask() {
+            var taskInput = document.getElementById("taskInput");
+            var startDateInput = document.getElementById("startDate");
+            var dueDateInput = document.getElementById("dueDate");
+
+            var taskText = taskInput.value.trim();
+            var startDate = startDateInput.value;
+            var dueDate = dueDateInput.value;
+
+            if (taskText === "" || startDate === "" || dueDate === "") {
+                alert("Please enter a task, start date, and due date.");
+                return;
+            }
+
+            var taskList = document.getElementById("taskList");
+
+            var taskItem = document.createElement("li");
+            taskItem.className = "taskItem";
+
+            var taskLabel = document.createElement("span");
+            taskLabel.textContent = `${taskText} (Start: ${startDate}, Due: ${dueDate})`;
+
+            var completeButton = document.createElement("button");
+            completeButton.innerHTML = "&#10004;";
+            completeButton.className = "complete";
+            completeButton.onclick = function () {
+                taskLabel.classList.toggle("completed");
+            };
+
+            var deleteButton = document.createElement("button");
+            deleteButton.textContent = "Delete";
+            deleteButton.onclick = function () {
+                taskList.removeChild(taskItem);
+                moveTaskToDeleted(taskItem.cloneNode(true));
+            };
+
+            taskItem.appendChild(taskLabel);
+            taskItem.appendChild(completeButton);
+            taskItem.appendChild(deleteButton);
+
+            taskList.appendChild(taskItem);
+
+            taskInput.value = "";
+            startDateInput.value = "";
+            dueDateInput.value = "";
+        }
+
+        function moveTaskToDeleted(taskItem) {
+            var deletedTaskList = document.getElementById("deletedTaskList");
+            var restoreButton = document.createElement("button");
+            restoreButton.textContent = "Restore";
+            restoreButton.onclick = function () {
+                deletedTaskList.removeChild(taskItem);
+                document.getElementById("taskList").appendChild(taskItem);
+            };
+
+            var deletePermanentlyButton = document.createElement("button");
+            deletePermanentlyButton.textContent = "Delete Permanently";
+            deletePermanentlyButton.onclick = function () {
+                deletedTaskList.removeChild(taskItem);
+            };
+
+            taskItem.className = "deletedTaskItem";
+            taskItem.appendChild(restoreButton);
+            taskItem.appendChild(deletePermanentlyButton);
+
+            deletedTaskList.appendChild(taskItem);
+        }
+
+        function restoreDeletedTasks() {
+            var deletedTaskList = document.getElementById("deletedTaskList");
+            var taskList = document.getElementById("taskList");
+
+            while (deletedTaskList.firstChild) {
+                var taskItem = deletedTaskList.firstChild;
+                taskItem.removeChild(taskItem.firstChild);
+                taskList.appendChild(taskItem);
+                deletedTaskList.removeChild(taskItem);
+            }
+        }
+
+        function deletePermanently() {
+            var deletedTaskList = document.getElementById("deletedTaskList");
+
+            while (deletedTaskList.firstChild) {
+                deletedTaskList.removeChild(deletedTaskList.firstChild);
+            }
+        }
+    </script>
+</body>
+
+</html>
+
